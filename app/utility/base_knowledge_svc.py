@@ -9,7 +9,6 @@ from datetime import datetime
 
 import app.service.data_svc
 from app.utility.base_service import BaseService
-from app.service.data_service import DataService
 
 DATA_BACKUP_DIR = app.service.data_svc.DATA_BACKUP_DIR
 FACT_STORE_PATH = "data/fact_store"
