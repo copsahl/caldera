@@ -9,6 +9,7 @@ from datetime import datetime
 
 import app.service.data_svc
 from app.utility.base_service import BaseService
+from app.service.data_service import DataService
 
 DATA_BACKUP_DIR = app.service.data_svc.DATA_BACKUP_DIR
 FACT_STORE_PATH = "data/fact_store"
@@ -64,10 +65,20 @@ class BaseKnowledgeService(BaseService):
         """
         return await self._remove('facts', criteria)
 
-    async def _get_meta_facts(self, meta_fact=None, agent=None, group=None):
+    async def _get_meta_facts(self, meta_fact=None, agent=None):
         # Returns the complete set of facts associated with a meta-fact construct
-        raise NotImplementedError
-
+        complete_list = []
+        if agent:
+            complete_list = [fact for link in agent.links for fact in link.facts]
+        elif meta_fact:
+            criteria = {}
+            for k, v in meta_fact.items():
+                criteria['name'] = f'{k}.name'  # Exclusively search on the Major.name field for broader stroke
+                criteria['value'] = v
+            complete_list = await self._get_facts(criteria)
+        
+        return complete_list
+        
     async def _get_fact_origin(self, fact):
         # Retrieve the specific origin of a fact. If it was learned in the current operation, parse through links to
         # identify the host it was discovered on.
